@@ -83,9 +83,9 @@
           <li><a href="#" class="term1">Privacy Policy</a></li>
           <li><a href="#" class="term2">Cookies Policy</a></li>
         </div>
-        <li class="right-link">
-          <a href="#" class="term3">Terms & Conditions</a>
-        </li>
+       <li class="right-link">
+  <router-link to="/terms-and-conditions" class="term3">Terms & Conditions</router-link>
+</li>
       </ul>
     </div>
   </div>
