@@ -1,6 +1,10 @@
 <template>
   <div class="hero-section">
-    <div class="carousel" @mouseenter="pauseAutoSlide" @mouseleave="startAutoSlide">
+    <div
+      class="carousel"
+      @mouseenter="pauseAutoSlide"
+      @mouseleave="startAutoSlide"
+    >
       <div
         class="slide"
         v-for="(slide, index) in slides"
@@ -31,28 +35,34 @@ export default {
     return {
       slides: [
         {
-          title: "Get ready for 100+ government exams, covering both central and state opportunities.",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-          image: require('@/assets/Trehousingpublications_UI/hero.png')
+          title:
+            "Get ready for 100+ government exams, covering both central and state opportunities.",
+          description:
+            "Access comprehensive resources designed for a wide range of exams including SSC, UPSC, Bihar Govt, and more. Stay updated with the latest syllabus and exam notifications to ensure you never miss important dates.",
+          image: require("@/assets/Trehousingpublications_UI/hero.png"),
         },
         {
           title: "Ace your exams with expert guidance from top teachers.",
-          description: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-          image: require('@/assets/Trehousingpublications_UI/hero2.png')
+          description:
+            "Learn from experienced educators through detailed courses, video tutorials, and step-by-step solutions. Our expert guidance ensures you understand key concepts and exam strategies to boost your confidence.",
+          image: require("@/assets/Trehousingpublications_UI/hero2.png"),
         },
         {
           title: "Comprehensive study materials for your success.",
-          description: "Lorem Ipsum is simply dummy text used in the printing industry.",
-          image: require('@/assets/Trehousingpublications_UI/hero3.jpg')
+          description:
+            "Explore well-researched books, updated syllabi, and previous year question papers to strengthen your preparation. Our materials are crafted to cover every important topic and maximize your learning efficiency.",
+          image: require("@/assets/Trehousingpublications_UI/hero3.jpg"),
         },
         {
           title: "Join the best preparation platform for a brighter future.",
-          description: "Lorem Ipsum has been the industry's standard dummy text for centuries.",
-          image: require('@/assets/Trehousingpublications_UI/hero4.png')
-        }
+          description:
+            "Be part of a thriving community focused on success through mock tests, live quizzes, and continuous support. Take the first step towards your dream job with resources trusted by thousands of aspirants.",
+          image: require("@/assets/Trehousingpublications_UI/hero4.png"),
+        },
       ],
+
       currentSlide: 0,
-      autoSlideInterval: null
+      autoSlideInterval: null,
     };
   },
   methods: {
@@ -68,11 +78,11 @@ export default {
     },
     pauseAutoSlide() {
       clearInterval(this.autoSlideInterval);
-    }
+    },
   },
   mounted() {
     this.startAutoSlide();
-  }
+  },
 };
 </script>
 
@@ -234,5 +244,4 @@ export default {
     object-fit: cover;
   }
 }
-
 </style>

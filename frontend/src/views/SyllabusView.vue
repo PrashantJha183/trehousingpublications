@@ -11,11 +11,11 @@
 import Header from "@/components/Homepage/HeaderSec.vue";
 import Footer from "@/components/Homepage/FooterSec.vue";
 
-import SyllabusHigherSecondary from "@/components/syllabus/SyllabusHigherSecondary.vue";
+import SyllabusHigherSecondary from "@/components/Syllabus/SyllabusHigherSecondary.vue";
 
-import SyllabusPdf from "@/components/syllabus/syllabusPdf.vue";
-import BctsExam from "@/components/syllabus/BctsExam.vue";
-import RedTable from "@/components/syllabus/RedTable.vue";
+import SyllabusPdf from "@/components/Syllabus/syllabusPdf.vue";
+import BctsExam from "@/components/Syllabus/BctsExam.vue";
+import RedTable from "@/components/Syllabus/RedTable.vue";
 
 export default {
   name: "SyllabusView",

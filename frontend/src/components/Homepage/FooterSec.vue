@@ -4,9 +4,13 @@
       <!-- Logo and Contact Section -->
       <div class="logowithcontect">
         <div class="logo">
-         <img :src="require('@/assets/logo.jpeg')" alt="Logo" />
-
-      </div>
+          <img
+            :src="require('@/assets/logo.jpeg')"
+            alt="Logo"
+            @click.prevent="redirectHome"
+            style="cursor: pointer"
+          />
+        </div>
         <div class="contact-info">
           <p>
             Address: TRE HOUSING PUBLICATION PRIVATE LIMITED <br />B-144.SECTOR
@@ -16,10 +20,34 @@
           <p>Email: trehousingpublication@gmail.com</p>
         </div>
         <div class="social-icons">
-          <a href="https://twitter.com/trepublication"><i class="fab fa-twitter"></i></a>
-          <a href="https://wa.me/9458846730"><i class="fab fa-whatsapp"></i></a>
-          <a href="https://t.me/trehousingpublication"><i class="fab fa-telegram"></i></a>
-          <a  href="https://www.youtube.com/@trehousingpublication"><i class="fab fa-youtube"></i></a>
+          <a
+            href="https://twitter.com/trepublication"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a
+            href="https://wa.me/9458846730"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          <a
+            href="https://t.me/trehousingpublication"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fab fa-telegram"></i>
+          </a>
+          <a
+            href="https://www.youtube.com/@trehousingpublication"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fab fa-youtube"></i>
+          </a>
         </div>
       </div>
 
@@ -31,11 +59,27 @@
       <!-- Links Section -->
       <div class="links">
         <ul>
-          <li><p class="home">Home</p></li>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Mission & Vision</a></li>
-          <li><a href="#">Other Books</a></li>
-          <li><a href="#">Newsletter</a></li>
+          <li><p class="home">Previous Year Paper</p></li>
+          <li>
+            <router-link to="/PYQ?course_id=1&subject_id=17"
+              >BPSC TRE (1-5)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/PYQ?course_id=1&subject_id=16"
+              >BPSC TRE (6-8)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/PYQ?course_id=1&subject_id=15"
+              >BPSC TRE (9-10)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/PYQ?course_id=1&subject_id=14"
+              >BPSC TRE (11-12)</router-link
+            >
+          </li>
         </ul>
       </div>
 
@@ -43,10 +87,26 @@
       <div class="syllabus">
         <ul>
           <li><p class="syl">Syllabus</p></li>
-          <li><a href="#">BPS TRE (1-5)</a></li>
-          <li><a href="#">BPS TRE (6-8)</a></li>
-          <li><a href="#">BPS TRE (9-10)</a></li>
-          <li><a href="#">BPS TRE (11-13)</a></li>
+          <li>
+            <router-link to="/syllabus?course_id=1&subject_id=17"
+              >BPSC TRE (1-5)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/syllabus?course_id=1&subject_id=16"
+              >BPSC TRE (6-8)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/syllabus?course_id=1&subject_id=15"
+              >BPSC TRE (9-10)</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/syllabus?course_id=1&subject_id=14"
+              >BPSC TRE (11-12)</router-link
+            >
+          </li>
         </ul>
       </div>
 
@@ -59,20 +119,20 @@
       <div class="solved">
         <ul>
           <li><p class="sol">Solved Paper</p></li>
-          <li><a href="#">BPS TRE (1-5)</a></li>
-          <li><a href="#">BPS TRE (6-8)</a></li>
-          <li><a href="#">BPS TRE (9-10)</a></li>
-          <li><a href="#">BPS TRE (11-13)</a></li>
+          <li><router-link to="/">BPSC TRE (1-5)</router-link></li>
+          <li><router-link to="/">BPSC TRE (6-8)</router-link></li>
+          <li><router-link to="/">BPSC TRE (9-10)</router-link></li>
+          <li><router-link to="/">BPSC TRE (11-13)</router-link></li>
         </ul>
       </div>
 
       <div class="mock">
         <ul>
           <li><p class="moc">Mock Test</p></li>
-          <li><a href="#">BPS TRE (1-5)</a></li>
-          <li><a href="#">BPS TRE (6-8)</a></li>
-          <li><a href="#">BPS TRE (9-10)</a></li>
-          <li><a href="#">BPS TRE (11-13)</a></li>
+          <li><router-link to="/">BPSC TRE (1-5)</router-link></li>
+          <li><router-link to="/">BPSC TRE (6-8)</router-link></li>
+          <li><router-link to="/">BPSC TRE (9-10)</router-link></li>
+          <li><router-link to="/">BPSC TRE (11-13)</router-link></li>
         </ul>
       </div>
     </footer>
@@ -80,12 +140,18 @@
     <div class="footer-bottom">
       <ul>
         <div class="left-links">
-          <li><a href="#" class="term1">Privacy Policy</a></li>
-          <li><a href="#" class="term2">Cookies Policy</a></li>
+          <li>
+            <router-link to="/" class="term1">Privacy Policy</router-link>
+          </li>
+          <li>
+            <router-link to="/" class="term2">Cookies Policy</router-link>
+          </li>
         </div>
-       <li class="right-link">
-  <router-link to="/terms-and-conditions" class="term3">Terms & Conditions</router-link>
-</li>
+        <li class="right-link">
+          <router-link to="/terms-and-conditions" class="term3"
+            >Terms & Conditions</router-link
+          >
+        </li>
       </ul>
     </div>
   </div>
@@ -94,6 +160,12 @@
 <script>
 export default {
   name: "FooterSec",
+
+  methods: {
+    redirectHome() {
+      this.$router.push({ path: "/" });
+    },
+  },
 };
 </script>
 
@@ -129,7 +201,6 @@ body {
   flex-direction: column;
 }
 
-
 .logo {
   display: flex;
   align-items: center;
@@ -140,7 +211,7 @@ body {
   width: 90px;
   height: auto;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 75%;
 }
 
 .contact-info p {
