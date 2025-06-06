@@ -3,8 +3,12 @@
     <nav ref="navMenu">
       <!-- Logo Section -->
       <div class="logo">
-         <img :src="require('@/assets/logo.jpeg')" alt="Logo" />
-
+        <img
+          :src="require('@/assets/logo.jpeg')"
+          alt="Logo"
+          @click.prevent="redirectHome"
+          style="cursor: pointer"
+        />
       </div>
 
       <!-- Mobile Menu Icon (hamburger) -->
@@ -17,7 +21,12 @@
       <!-- Navigation Links -->
       <ul :class="['nav-links', { active: isMenuActive }]">
         <li v-for="(item, index) in menuItems" :key="index" class="dropdown">
-          <a href="#" @click.prevent="toggleDropdown(index)">
+          <a
+            href="#"
+            @click.prevent="
+              item.name === 'Home' ? redirectHome() : toggleDropdown(index)
+            "
+          >
             {{ item.name }}
             <span
               v-if="item.submenu"
@@ -59,27 +68,29 @@
                   { show: activeSubDropdown[`${index}-${subIndex}`] },
                 ]"
               >
-               <li
-  v-for="(subSubItem, subSubIndex) in subItem.submenu"
-  :key="subSubIndex"
->
-  <a
-    v-if="subSubItem.url"
-    :href="subSubItem.url"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {{ subSubItem.name }}
-  </a>
-  <a
-    v-else
-    href="#"
-    @click.prevent="handleClick(subItem.courseId, subSubItem.id)"
-  >
-    {{ subSubItem.name }}
-  </a>
-</li>
-
+                <li
+                  v-for="(subSubItem, subSubIndex) in subItem.submenu"
+                  :key="subSubIndex"
+                  @click="closeMenu"
+                >
+                  <router-link
+                    v-if="subSubItem.url"
+                    :to="subSubItem.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ subSubItem.name }}
+                  </router-link>
+                  <a
+                    v-else
+                    href="#"
+                    @click.prevent="
+                      handleClick(subItem.courseId, subSubItem.id)
+                    "
+                  >
+                    {{ subSubItem.name }}
+                  </a>
+                </li>
               </ul>
             </li>
           </ul>
@@ -97,16 +108,7 @@ export default {
       activeDropdown: null,
       activeSubDropdown: {},
       menuItems: [
-        {
-          name: "Home",
-          submenu: [
-            { name: "About" },
-            { name: "Mission & Vision" },
-            { name: "Books" },
-            { name: "Notification" },
-            { name: "News Letter" },
-          ],
-        },
+        { name: "Home" },
         {
           name: "Syllabus",
           submenu: [],
@@ -120,10 +122,7 @@ export default {
           submenu: [
             {
               name: "BPSC TRE",
-              submenu: [
-                { name: "BPSC TRE 1.0 (11-12) Computer Science" },
-                { name: "BPSC TRE 2.0 (11-12) Computer Science" },
-              ],
+              submenu: [],
             },
           ],
         },
@@ -136,6 +135,11 @@ export default {
   methods: {
     toggleMenu() {
       this.isMenuActive = !this.isMenuActive;
+      // Close all dropdowns when toggling menu
+      if (!this.isMenuActive) {
+        this.activeDropdown = null;
+        this.activeSubDropdown = {};
+      }
     },
 
     async toggleDropdown(index) {
@@ -153,20 +157,31 @@ export default {
         }
       }
 
+      // If clicking the already open dropdown, close it; else open new and close previous
       this.activeDropdown = this.activeDropdown === index ? null : index;
+      // Reset sub-dropdown states on dropdown change
       this.activeSubDropdown = {};
     },
 
     toggleSubDropdown(parentIndex, subIndex) {
       const key = `${parentIndex}-${subIndex}`;
-      this.activeSubDropdown = {
-        ...this.activeSubDropdown,
-        [key]: !this.activeSubDropdown[key],
-      };
+
+      // Toggle clicked submenu
+      const isOpen = !!this.activeSubDropdown[key];
+
+      // Close all other submenus except the one clicked
+      this.activeSubDropdown = {};
+
+      // If was closed, open it now
+      if (!isOpen) {
+        this.activeSubDropdown[key] = true;
+      }
     },
 
     async fetchSyllabusData() {
-      const response = await fetch("https://cms.trehousingpublication.com/api/v1/");
+      const response = await fetch(
+        "https://cms.trehousingpublication.com/api/v1/"
+      );
       const apiData = await response.json();
 
       return apiData.map((item) => ({
@@ -182,24 +197,33 @@ export default {
     handleClick(courseId, subjectId) {
       if (!courseId) return;
 
-      // Detect if the active dropdown is "PYQP & Answer Key"
       const activeItem = this.menuItems[this.activeDropdown];
-      if (activeItem && activeItem.name === "PYQP & Answer Key") {
-        // Redirect to /PYQ with only course_id
-        const query = new URLSearchParams({
-          course_id: courseId,
-          subject_id: subjectId,
-        }).toString();
-        window.location.href = `/PYQ?${query}`;
-      } else if (subjectId) {
+      const routePath =
+        activeItem && activeItem.name === "PYQP & Answer Key"
+          ? "/PYQ"
+          : "/syllabus";
 
-        const query = new URLSearchParams({
-          course_id: courseId,
-          subject_id: subjectId,
-        }).toString();
-        window.location.href = `/syllabus?${query}`;
+      if (subjectId) {
+        this.$router.push({
+          path: routePath,
+          query: {
+            course_id: courseId,
+            subject_id: subjectId,
+          },
+        });
       }
+      this.closeMenu();
+    },
 
+    redirectHome() {
+      this.$router.push({ path: "/" });
+      this.closeMenu();
+    },
+
+    closeMenu() {
+      this.isMenuActive = false;
+      this.activeDropdown = null;
+      this.activeSubDropdown = {};
     },
   },
 };
@@ -216,8 +240,6 @@ nav {
   padding: 10px 30px;
   width: 100%;
   position: relative;
-
-  
 }
 
 .logo {
@@ -230,11 +252,8 @@ nav {
   width: 90px;
   height: 90px;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 75%;
 }
-
-
-
 
 /* Navbar Links */
 .nav-links {
@@ -243,7 +262,6 @@ nav {
   list-style: none;
   flex-grow: 1;
   justify-content: center;
- 
 }
 
 .nav-links li {
@@ -342,7 +360,7 @@ nav {
   text-decoration: none;
   transition: transform 0.4s ease; /* Smooth rotation */
   max-height: 400px;
- overflow-x: auto;  
+  overflow-x: auto;
 }
 
 .sub-dropdown-menu a {
@@ -404,7 +422,7 @@ nav {
   }
 
   .logo {
-    padding: 0 0px; 
+    padding: 0 0px;
   }
   .menu-icon {
     display: flex;
@@ -485,7 +503,7 @@ nav {
     padding: 15px;
   }
 
-   .logo img {
+  .logo img {
     width: 70px;
     height: 70px;
   }
@@ -534,8 +552,7 @@ nav {
     padding: 10px;
   }
 
-  
-   .logo img {
+  .logo img {
     width: 50px;
     height: 50px;
   }
@@ -578,3 +595,8 @@ nav {
   }
 }
 </style>
+
+// submenu: [ // { name: "About" }, // { name: "Mission & Vision" }, // { name:
+"Books" }, // { name: "Notification" }, // { name: "News Letter" }, // ], // {
+name: "BPSC TRE 1.0 (11-12) Computer Science" }, // { name: "BPSC TRE 2.0
+(11-12) Computer Science" },

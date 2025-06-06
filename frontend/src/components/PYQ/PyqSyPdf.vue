@@ -10,20 +10,36 @@
     </div>
 
     <div v-if="pdfData['BPSC TRE']">
-      <div v-for="(papers, category) in pdfData['BPSC TRE']" :key="category" class="category-section">
-        <h3 class="table-head"><u class="underline">{{ category }}</u></h3><br />
+      <div
+        v-for="(papers, category) in pdfData['BPSC TRE']"
+        :key="category"
+        class="category-section"
+      >
+        <h3 class="table-head">
+          <u class="underline">{{ category }}</u>
+        </h3>
+        <br />
 
         <table class="table-data">
-          <tr class="imp-link">
-            <td>PDF File Name</td>
-            <td>Download</td>
-          </tr>
-          <tr v-for="(file, index) in papers" :key="index" class="rowData">
-            <td>{{ file }}</td>
-            <td>
-              <a :href="getPdfUrl(file)" target="_blank" rel="noopener noreferrer">View / Download</a>
-            </td>
-          </tr>
+          <thead>
+            <tr class="imp-link">
+              <th>PDF File Name</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(file, index) in papers" :key="index" class="rowData">
+              <td>{{ file }}</td>
+              <td>
+                <a
+                  :href="getPdfUrl(file)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >View</a
+                >
+              </td>
+            </tr>
+          </tbody>
         </table>
         <br /><br />
       </div>
@@ -69,14 +85,22 @@ export default {
 
       try {
         // Step 1: Fetch course/subject mapping from /api/v1/
-        const mapRes = await axios.get(`https://cms.trehousingpublication.com/api/v1/`);
+        const mapRes = await axios.get(
+          `https://cms.trehousingpublication.com/api/v1/`
+        );
         this.courseSubjectMap = mapRes.data || [];
 
         // Step 2: Find subject title dynamically from courseSubjectMap
-        const selectedCourse = this.courseSubjectMap.find(course => course.id == courseId);
+        const selectedCourse = this.courseSubjectMap.find(
+          (course) => course.id == courseId
+        );
         if (selectedCourse) {
-          const selectedSubject = selectedCourse.subjects.find(subject => subject.id == subjectId);
-          this.selectedCategory = selectedSubject ? selectedSubject.title : null;
+          const selectedSubject = selectedCourse.subjects.find(
+            (subject) => subject.id == subjectId
+          );
+          this.selectedCategory = selectedSubject
+            ? selectedSubject.title
+            : null;
         } else {
           this.selectedCategory = null;
         }
@@ -97,12 +121,13 @@ export default {
     getPdfUrl(filename) {
       const courseId = this.$route.query.course_id;
       const subjectId = this.$route.query.subject_id;
-      return `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&subject_id=${subjectId}&file=${encodeURIComponent(filename)}`;
+      return `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&subject_id=${subjectId}&file=${encodeURIComponent(
+        filename
+      )}`;
     },
   },
 };
 </script>
-
 
 <style scoped>
 /* Loading styles */
@@ -126,8 +151,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* No data message styles */
@@ -143,41 +172,39 @@ export default {
 /* Your existing styles can remain here */
 
 .box {
-    padding: 3vh 3vw;
-    font-family: 'Inter', sans-serif;
-
+  padding: 3vh 3vw;
+  font-family: "Inter", sans-serif;
 }
 
 .heading-pdf {
-    padding: 0px;
-    border-radius: 5px;
-    font-weight: bolder;
-
+  padding: 0px;
+  border-radius: 5px;
+  font-weight: bolder;
 }
-.underline{
-    color: rgb(208, 5, 35);;
+.underline {
+  color: rgb(208, 5, 35);
 }
 
 .heading-pdf h4 {
-    font-size: 24px;
-    margin: 0;
-    padding: 0 0px;
-    font-family: "Times New Roman", Times, serif;
-    font-weight: bold;
+  font-size: 24px;
+  margin: 0;
+  padding: 0 0px;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
 }
 
 .paragraph-pdf {
-    font-size: medium;
-    color: #000;
-    margin: 14px 0;
+  font-size: medium;
+  color: #000;
+  margin: 14px 0;
 }
 
 .table-head {
-    margin-bottom: -10px;
-    font-size: medium;
-    font-weight: bold;
-    color:  rgb(208, 5, 35);;
-    text-align: center;
+  margin-bottom: -10px;
+  font-size: medium;
+  font-weight: bold;
+  color: rgb(208, 5, 35);
+  text-align: center;
 }
 
 /* .horiz-line {
@@ -187,119 +214,120 @@ export default {
 } */
 
 .table-data {
-    width:100%;
-    border-collapse: collapse;
-    margin: 25px 0px;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0px;
 }
 
-.table-data .imp-link td {
-    color: #fff;
-    background-color: #d6574b;
-    font-weight: 700;
-    padding: 15px;
-    font-size: medium;
+.table-data .imp-link th {
+  color: #fff;
+  background-color: #d6574b;
+  font-weight: 700;
+  padding: 15px;
+  font-size: medium;
+  text-align: center;
 }
 
 .table-data .rowData {
-    border: 1.5px solid #000;
+  border: 1.5px solid #000;
 }
 
 .table-data .rowData td {
-    text-decoration: underline;
-    border: 1px solid #000;
-    font-size: medium;
-    font-weight: 550;
-    padding: 1.3vw;
-    color: rgb(208, 5, 35);
-    text-align: center;
+  text-decoration: none;
+  border: 1px solid #000;
+  font-size: medium;
+  font-weight: 550;
+  padding: 1.3vw;
+  color: rgb(208, 5, 35);
+  text-align: center;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .paragraph-pdf {
-        font-size: 17px;
-    }
+  .paragraph-pdf {
+    font-size: 17px;
+  }
 
-    .table-head {
-        font-size: 16px;
-    }
+  .table-head {
+    font-size: 16px;
+  }
 
-    .table-data .imp-link td {
-        font-size: 1rem;
-    }
+  .table-data .imp-link th {
+    font-size: 1rem;
+  }
 
-    .table-data .rowData td {
-        font-size: 15px;
-    }
+  .table-data .rowData td {
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 768px) {
-    .box {
-        padding: 1vh 4vw;
-    }
+  .box {
+    padding: 1vh 4vw;
+  }
 
-    .heading-pdf h4 {
-        font-size: 20px;
-    }
+  .heading-pdf h4 {
+    font-size: 20px;
+  }
 
-    .paragraph-pdf {
-        font-size: 14px;
-    }
+  .paragraph-pdf {
+    font-size: 14px;
+  }
 
-    .table-head {
-        font-size: 1rem;
-        font-weight: 700;
-    }
+  .table-head {
+    font-size: 1rem;
+    font-weight: 700;
+  }
 
-    .table-data .imp-link td {
-        font-size: 14px;
-    }
+  .table-data .imp-link th {
+    font-size: 14px;
+  }
 
-    .table-data .rowData td {
-        font-size: 14px;
-        padding: 15px;
-    }
+  .table-data .rowData td {
+    font-size: 14px;
+    padding: 15px;
+  }
 }
 
 @media (max-width: 480px) {
-    .heading-pdf {
-        width: 100%;
-    }
+  .heading-pdf {
+    width: 100%;
+  }
 
-    .heading-pdf h4 {
-        font-size: 16px;
-    }
+  .heading-pdf h4 {
+    font-size: 16px;
+  }
 
-    .paragraph-pdf {
-        font-size: 13px;
-        line-height: 1.3;
-    }
+  .paragraph-pdf {
+    font-size: 13px;
+    line-height: 1.3;
+  }
 
-    .table-head {
-        font-size: 14px;
-    }
+  .table-head {
+    font-size: 14px;
+  }
 
-    .horiz-line {
-        width: 80vw;
-        margin-bottom: 15px;
-    }
+  .horiz-line {
+    width: 80vw;
+    margin-bottom: 15px;
+  }
 
-    .table-data .imp-link td {
-        font-size: 12px;
-        padding: 5px;
-    }
+  .table-data .imp-link th {
+    font-size: 12px;
+    padding: 5px;
+  }
 
-    .table-data .rowData td {
-        font-size: 11px;
-        padding: 10px;
-    }
+  .table-data .rowData td {
+    font-size: 11px;
+    padding: 10px;
+  }
 
-    .table-data .rowData {
-        border: 1px solid #000;
-    }
+  .table-data .rowData {
+    border: 1px solid #000;
+  }
 
-    .table-data .rowData td {
-        border: 0.7px solid #000;
-    }
+  .table-data .rowData td {
+    border: 0.7px solid #000;
+  }
 }
 </style>
