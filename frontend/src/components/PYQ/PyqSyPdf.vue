@@ -9,39 +9,50 @@
       <h4>BPSC TRE Question Papers</h4>
     </div>
 
-    <div v-if="pdfData['BPSC TRE']">
+    <div v-if="pdfData['BPSC TRE'] && Object.keys(pdfData['BPSC TRE']).length">
       <div
-        v-for="(papers, category) in pdfData['BPSC TRE']"
-        :key="category"
-        class="category-section"
+        v-for="(versionData, versionKey) in pdfData['BPSC TRE']"
+        :key="versionKey"
+        class="version-section"
       >
-        <h3 class="table-head">
-          <u class="underline">{{ category }}</u>
-        </h3>
-        <br />
+        <h3 class="version-title text-center mt-2">{{ versionKey }}</h3>
 
-        <table class="table-data">
-          <thead>
-            <tr class="imp-link">
-              <th>PDF File Name</th>
-              <th>Download</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(file, index) in papers" :key="index" class="rowData">
-              <td>{{ file }}</td>
-              <td>
-                <a
-                  :href="getPdfUrl(file)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >View</a
-                >
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <br /><br />
+        <div
+          v-for="(categoryFiles, categoryName) in versionData"
+          :key="categoryName"
+          class="category-section"
+        >
+          <h4 class="category-title">
+            <u class="underline">{{ categoryName }}</u>
+          </h4>
+
+          <table class="table-data">
+            <thead>
+              <tr class="imp-link">
+                <th>PDF File Name</th>
+                <th>View</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(file, idx) in categoryFiles"
+                :key="idx"
+                class="rowData"
+              >
+                <td style="text-align: justify">{{ file }}</td>
+                <td>
+                  <a
+                    :href="getPdfUrl(file)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >View</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+        </div>
       </div>
     </div>
 
@@ -61,7 +72,9 @@ export default {
       pdfData: {},
       isLoading: true,
       selectedCategory: null,
-      courseSubjectMap: [], // will hold data from /api/v1/
+      courseSubjectMap: [],
+      currentSubCourseId: null,
+      currentSubjectId: null, // correct subject.id (e.g., 14,15,16...)
     };
   },
   watch: {
@@ -73,55 +86,82 @@ export default {
   methods: {
     async fetchAllData() {
       const courseId = this.$route.query.course_id;
-      const subjectId = this.$route.query.subject_id;
+      const subCourseId = this.$route.query.sub_courses;
 
-      if (!courseId || !subjectId) {
+      if (!courseId || !subCourseId) {
         this.pdfData = {};
         this.selectedCategory = null;
+        this.currentSubCourseId = null;
+        this.currentSubjectId = null;
         return;
       }
 
       this.isLoading = true;
 
       try {
-        // Step 1: Fetch course/subject mapping from /api/v1/
+        // Step 1: Fetch course-subject mapping
         const mapRes = await axios.get(
-          `https://cms.trehousingpublication.com/api/v1/`
+          "https://cms.trehousingpublication.com/api/v1/"
         );
         this.courseSubjectMap = mapRes.data || [];
 
-        // Step 2: Find subject title dynamically from courseSubjectMap
+        // Step 2: Find course by course_id
         const selectedCourse = this.courseSubjectMap.find(
-          (course) => course.id == courseId
+          (course) => Number(course.id) === Number(courseId)
         );
+
         if (selectedCourse) {
+          // Step 3: Find subject where subject.id == subCourseId
           const selectedSubject = selectedCourse.subjects.find(
-            (subject) => subject.id == subjectId
+            (subject) => Number(subject.id) === Number(subCourseId)
           );
-          this.selectedCategory = selectedSubject
-            ? selectedSubject.title
-            : null;
+
+          if (selectedSubject) {
+            this.selectedCategory = selectedSubject.title;
+            this.currentSubjectId = selectedSubject.id;
+            console.log("Extracted subject_id:", this.currentSubjectId);
+          } else {
+            console.warn("Subject not found for subCourseId:", subCourseId);
+            this.selectedCategory = null;
+            this.currentSubjectId = null;
+          }
         } else {
+          console.warn("Course not found for courseId:", courseId);
           this.selectedCategory = null;
+          this.currentSubjectId = null;
         }
 
-        // Step 3: Fetch PDF data
-        const dataUrl = `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&subject_id=${subjectId}`;
+        this.currentSubCourseId = subCourseId;
+
+        // Step 4: Fetch PDF data list
+        const dataUrl = `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${subCourseId}`;
         const dataRes = await axios.get(dataUrl);
         this.pdfData = dataRes.data || {};
       } catch (error) {
         console.error("Error fetching data:", error);
         this.pdfData = {};
         this.selectedCategory = null;
+        this.currentSubCourseId = null;
+        this.currentSubjectId = null;
       } finally {
         this.isLoading = false;
       }
     },
 
+    // Step 5: Use the subject_id (correctly extracted) in the PDF URL
     getPdfUrl(filename) {
       const courseId = this.$route.query.course_id;
-      const subjectId = this.$route.query.subject_id;
-      return `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&subject_id=${subjectId}&file=${encodeURIComponent(
+      const subCourseId = this.currentSubCourseId;
+      const subjectId = this.currentSubjectId;
+
+      console.log("📄 Generating PDF URL with subject_id:", subjectId);
+
+      if (!subjectId) {
+        console.warn("Missing subject_id, cannot generate PDF URL");
+        return "#";
+      }
+
+      return `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${subCourseId}&subject_id=${subjectId}&file=${encodeURIComponent(
         filename
       )}`;
     },
@@ -182,10 +222,15 @@ export default {
   font-weight: bolder;
 }
 .underline {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  text-align: center;
   color: rgb(208, 5, 35);
 }
 
 .heading-pdf h4 {
+  text-align: center;
   font-size: 24px;
   margin: 0;
   padding: 0 0px;
@@ -214,9 +259,9 @@ export default {
 } */
 
 .table-data {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
-  margin: 25px 0px;
+  margin: 0 auto;
 }
 
 .table-data .imp-link th {

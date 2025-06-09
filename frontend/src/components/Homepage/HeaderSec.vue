@@ -119,12 +119,6 @@ export default {
         },
         {
           name: "Solved Paper",
-          submenu: [
-            {
-              name: "BPSC TRE",
-              submenu: [],
-            },
-          ],
         },
         {
           name: "Mock Test",
@@ -145,21 +139,29 @@ export default {
     async toggleDropdown(index) {
       const clickedItem = this.menuItems[index];
 
-      if (
-        ["Syllabus", "PYQP & Answer Key"].includes(clickedItem.name) &&
-        clickedItem.submenu.length === 0
-      ) {
+      if (clickedItem.name === "Syllabus" && clickedItem.submenu.length === 0) {
         try {
-          const formattedData = await this.fetchSyllabusData();
-          this.menuItems[index].submenu = formattedData;
+          const syllabusData = await this.fetchSyllabusData();
+          this.menuItems[index].submenu = syllabusData;
         } catch (error) {
-          console.error("Error loading data:", error);
+          console.error("Error loading syllabus:", error);
         }
       }
 
-      // If clicking the already open dropdown, close it; else open new and close previous
+      if (
+        clickedItem.name === "PYQP & Answer Key" &&
+        clickedItem.submenu.length === 0
+      ) {
+        try {
+          const pyqpData = await this.fetchPyqpData();
+          this.menuItems[index].submenu = pyqpData;
+        } catch (error) {
+          console.error("Error loading PYQP data:", error);
+        }
+      }
+
+      // Toggle dropdown and reset submenus
       this.activeDropdown = this.activeDropdown === index ? null : index;
-      // Reset sub-dropdown states on dropdown change
       this.activeSubDropdown = {};
     },
 
@@ -194,6 +196,30 @@ export default {
       }));
     },
 
+    async fetchPyqpData() {
+      const response = await fetch(
+        "https://cms.trehousingpublication.com/api/v2/?course_id=1"
+      );
+      const apiData = await response.json();
+
+      const formatted = [];
+
+      for (const category in apiData) {
+        if (Array.isArray(apiData[category])) {
+          formatted.push({
+            name: category,
+            courseId: 1,
+            submenu: apiData[category].map((item) => ({
+              name: item.title,
+              id: item.id,
+            })),
+          });
+        }
+      }
+
+      return formatted;
+    },
+
     handleClick(courseId, subjectId) {
       if (!courseId) return;
 
@@ -204,13 +230,24 @@ export default {
           : "/syllabus";
 
       if (subjectId) {
-        this.$router.push({
-          path: routePath,
-          query: {
-            course_id: courseId,
-            subject_id: subjectId,
-          },
-        });
+        // For PYQP, pass sub_courses param instead of subject_id
+        if (activeItem.name === "PYQP & Answer Key") {
+          this.$router.push({
+            path: routePath,
+            query: {
+              course_id: courseId,
+              sub_courses: subjectId,
+            },
+          });
+        } else {
+          this.$router.push({
+            path: routePath,
+            query: {
+              course_id: courseId,
+              subject_id: subjectId,
+            },
+          });
+        }
       }
       this.closeMenu();
     },
