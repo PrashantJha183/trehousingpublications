@@ -34,21 +34,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(file, idx) in categoryFiles"
-                :key="idx"
-                class="rowData"
-              >
-                <td style="text-align: justify">{{ file }}</td>
-                <td>
-                  <a
-                    :href="getPdfUrl(file)"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >View</a
-                  >
-                </td>
-              </tr>
+              <template v-for="file in categoryFiles" :key="file">
+                <tr class="rowData">
+                  <td style="text-align: justify">{{ file }}</td>
+                  <td>
+                    <a
+                      :href="getPdfUrl(file)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
           <br />
@@ -70,100 +69,102 @@ export default {
   data() {
     return {
       pdfData: {},
-      isLoading: true,
+      isLoading: false,
       selectedCategory: null,
-      courseSubjectMap: [],
       currentSubCourseId: null,
-      currentSubjectId: null, // correct subject.id (e.g., 14,15,16...)
+      currentSubjectId: null,
     };
   },
   watch: {
     "$route.query": {
-      handler: "fetchAllData",
       immediate: true,
+      handler(newQuery) {
+        console.log("[Watcher] Route query changed:", newQuery);
+        this.fetchAllData();
+      },
     },
   },
   methods: {
-    async fetchAllData() {
-      const courseId = this.$route.query.course_id;
-      const subCourseId = this.$route.query.sub_courses;
+    getSubjectIdFromSubCourse(subCourseId) {
+      const mapping = {
+        1: 14,
+        2: 15,
+        3: 16,
+        4: 17,
+      };
+      return mapping[subCourseId] || null;
+    },
 
-      if (!courseId || !subCourseId) {
-        this.pdfData = {};
-        this.selectedCategory = null;
-        this.currentSubCourseId = null;
-        this.currentSubjectId = null;
+    async fetchAllData() {
+      const courseIdRaw = this.$route.query.course_id;
+      const subCourseRaw = this.$route.query.sub_courses;
+      const courseId = parseInt(courseIdRaw, 10);
+      const subCourseId = parseInt(subCourseRaw, 10);
+
+      console.log(`[fetchAllData] courseId: ${courseId}, sub_courses: ${subCourseId}`);
+
+      if (isNaN(courseId) || isNaN(subCourseId)) {
+        console.warn("[fetchAllData] Invalid courseId or sub_courses, resetting.");
+        this.resetState();
+        return;
+      }
+
+      const subjectId = this.getSubjectIdFromSubCourse(subCourseId);
+      console.log(`[fetchAllData] Mapped subjectId: ${subjectId}`);
+
+      if (!subjectId) {
+        console.warn(`[fetchAllData] No subjectId found for sub_courses=${subCourseId}`);
+        this.resetState();
         return;
       }
 
       this.isLoading = true;
 
       try {
-        // Step 1: Fetch course-subject mapping
-        const mapRes = await axios.get(
-          "https://cms.trehousingpublication.com/api/v1/"
-        );
-        this.courseSubjectMap = mapRes.data || [];
-
-        // Step 2: Find course by course_id
-        const selectedCourse = this.courseSubjectMap.find(
-          (course) => Number(course.id) === Number(courseId)
-        );
-
-        if (selectedCourse) {
-          // Step 3: Find subject where subject.id == subCourseId
-          const selectedSubject = selectedCourse.subjects.find(
-            (subject) => Number(subject.id) === Number(subCourseId)
-          );
-
-          if (selectedSubject) {
-            this.selectedCategory = selectedSubject.title;
-            this.currentSubjectId = selectedSubject.id;
-            console.log("Extracted subject_id:", this.currentSubjectId);
-          } else {
-            console.warn("Subject not found for subCourseId:", subCourseId);
-            this.selectedCategory = null;
-            this.currentSubjectId = null;
-          }
-        } else {
-          console.warn("Course not found for courseId:", courseId);
-          this.selectedCategory = null;
-          this.currentSubjectId = null;
-        }
-
         this.currentSubCourseId = subCourseId;
+        this.currentSubjectId = subjectId;
+        this.selectedCategory = `Subject ID ${subjectId}`;
 
-        // Step 4: Fetch PDF data list
-        const dataUrl = `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${subCourseId}`;
-        const dataRes = await axios.get(dataUrl);
-        this.pdfData = dataRes.data || {};
+        const pdfListUrl = `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${subCourseId}`;
+        console.log(`[fetchAllData] Fetching PDF list from: ${pdfListUrl}`);
+
+        const response = await axios.get(pdfListUrl);
+        this.pdfData = response.data || {};
+
+        console.log("[fetchAllData] PDF data received:", this.pdfData);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        this.pdfData = {};
-        this.selectedCategory = null;
-        this.currentSubCourseId = null;
-        this.currentSubjectId = null;
+        console.error("[fetchAllData] Error fetching PDF data:", error);
+        this.resetState();
       } finally {
         this.isLoading = false;
       }
     },
 
-    // Step 5: Use the subject_id (correctly extracted) in the PDF URL
     getPdfUrl(filename) {
       const courseId = this.$route.query.course_id;
-      const subCourseId = this.currentSubCourseId;
+      const subCourses = this.$route.query.sub_courses;
       const subjectId = this.currentSubjectId;
 
-      console.log("📄 Generating PDF URL with subject_id:", subjectId);
-
       if (!subjectId) {
-        console.warn("Missing subject_id, cannot generate PDF URL");
+        console.warn("[getPdfUrl] Missing subject_id, cannot generate PDF URL");
         return "#";
       }
 
-      return `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${subCourseId}&subject_id=${subjectId}&file=${encodeURIComponent(
-        filename
-      )}`;
+      const url = `https://cms.trehousingpublication.com/api/v2/?course_id=${courseId}&sub_courses=${encodeURIComponent(
+        subCourses
+      )}&subject_id=${subjectId}&file=${encodeURIComponent(filename)}`;
+
+      console.log("[getPdfUrl] Generated PDF URL:", url);
+      return url;
+    },
+
+    resetState() {
+      console.log("[resetState] Resetting component state");
+      this.pdfData = {};
+      this.selectedCategory = null;
+      this.currentSubjectId = null;
+      this.currentSubCourseId = null;
+      this.isLoading = false;
     },
   },
 };
