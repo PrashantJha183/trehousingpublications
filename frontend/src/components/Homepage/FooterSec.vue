@@ -61,23 +61,18 @@
         <ul>
           <li><p class="home">Previous Year Paper</p></li>
           <li>
-            <router-link to="/PYQ?course_id=1&subject_id=17"
-              >BPSC TRE (1-5)</router-link
+            <router-link to="/PYQ?course_id=1&sub_courses=1"
+              >BPSC TRE 1.0</router-link
             >
           </li>
           <li>
-            <router-link to="/PYQ?course_id=1&subject_id=16"
-              >BPSC TRE (6-8)</router-link
+            <router-link to="/PYQ?course_id=1&sub_courses=2"
+              >BPSC TRE 2.0</router-link
             >
           </li>
           <li>
-            <router-link to="/PYQ?course_id=1&subject_id=15"
-              >BPSC TRE (9-10)</router-link
-            >
-          </li>
-          <li>
-            <router-link to="/PYQ?course_id=1&subject_id=14"
-              >BPSC TRE (11-12)</router-link
+            <router-link to="/PYQ?course_id=1&sub_courses=3"
+              >BPSC TRE 3.0</router-link
             >
           </li>
         </ul>
