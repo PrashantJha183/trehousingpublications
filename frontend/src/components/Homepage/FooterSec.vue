@@ -136,11 +136,11 @@
       <ul>
         <div class="left-links">
           <li>
-            <router-link to="/" class="term1">Privacy Policy</router-link>
+            <router-link to="/privacy-policy" class="term1"
+              >Privacy Policy</router-link
+            >
           </li>
-          <li>
-            <router-link to="/" class="term2">Cookies Policy</router-link>
-          </li>
+          <li><a href="#" class="term2">Cookies Policy</a></li>
         </div>
         <li class="right-link">
           <router-link to="/terms-and-conditions" class="term3"
